@@ -1,0 +1,24 @@
+sequenceDiagram
+    participant browser
+    participant server
+    participant user
+
+    browser-->>server: GET https://studies.cs.helsinki.fi/exampleapp/data.json
+    activate server
+    server-->>browser: Json data
+    deactivate server
+
+    user-->>browser: Inserts data to save on server with a xmlHttpRequest 
+    browser: Set header and convert to JSON the data of the input
+    browser-->>server: xmlHttpRequest https://studies.cs.helsinki.fi//exampleapp/new_note_spa
+    browser: Send request
+
+    Note right of browser: The browser processes the request getting the input data of the note
+
+    activate server
+    server: Process and save the note.
+    server-->>browser: *status of request*
+    deactivate server
+
+    browser: Reads the status of the request
+    browser: If ok, reconstruct the notes table with redrawNotes() 

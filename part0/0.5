@@ -1,0 +1,25 @@
+sequenceDiagram
+    participant browser
+    participant server
+
+    browser->>server: GET https://studies.cs.helsinki.fi/exampleapp/spa
+    activate server
+    server-->>browser: HTML document and stored data
+    deactivate server
+
+    browser->>server: GET https://studies.cs.helsinki.fi/exampleapp/main.css
+    activate server
+    server-->>browser: loads css for the template
+    deactivate server
+
+    browser->>server: GET https://studies.cs.helsinki.fi/exampleapp/spa.js
+    activate server
+    server-->>browser: JavaScript file with spa functionality
+    deactivate server
+
+    Note right of browser: Executes code that will avoid the refresh of the window after submiting the form
+
+    browser->>server: GET https://studies.cs.helsinki.fi/exampleapp/data.json
+    activate server
+    server-->>browser: [stored_data_on_json]
+    deactivate server

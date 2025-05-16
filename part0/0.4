@@ -1,0 +1,22 @@
+sequenceDiagram
+    participant browser
+    participant server
+    participant user
+
+    browser-->>server: GET https://studies.cs.helsinki.fi/exampleapp/data.json
+    activate server
+    server-->>browser: Json data
+    deactivate server
+
+    user-->>browser: Inserts data to save on server
+    browser-->>server: POST https://studies.cs.helsinki.fi//exampleapp/new_note 
+
+    Note right of browser: The browser processes the request getting the input data of the note
+
+    activate server
+    server: Process and save the note.
+    server-->>browser: [{JSON OF NOTES STORED}]
+    deactivate server
+
+    Note right of server: Once its saved the note, the server returns all stored data to the browser.
+    browser-->>user: Shows a list of all stored notes, including the one recently added    
