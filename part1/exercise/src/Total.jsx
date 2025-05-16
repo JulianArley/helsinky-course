@@ -1,8 +1,8 @@
-const Total = ({exercises}) => {
+const Total = ({part}) => {
   let sum = 0
 
-  exercises.forEach(number => {
-    sum += number
+  part.forEach(element => {
+    sum += element.exercises
   });
 
   return (
