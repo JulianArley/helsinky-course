@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import AddPeopleForm from './AddPeopleForm'
 import FilterPeople from './FilterPeople'
+import Notification from './Notification'
 import PeopleService from './services/people'
 import ShowPeople from './ShowPeople'
 
@@ -9,6 +10,8 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filterBy, setNewFilterBy] = useState('')
+  const [message, setNewMessage] = useState(null)
+  const [className, setClassName] = useState('')
 
   useEffect(() => {
     PeopleService.getAll()
@@ -35,15 +38,39 @@ const App = () => {
           checkDuplicate.id, 
           {name: newName, number: newNumber}
         )
-        .then(response => 
-          setPersons(persons.map(person => person.id !== checkDuplicate.id ? person : response))
+        .then(response => {
+            setPersons(persons.map(person => person.id !== checkDuplicate.id ? person : response))
+            setClassName('notification created')
+            setNewMessage(`Number updated for ${newName}, new value ${newNumber}`)
+            setTimeout(() => {
+              setNewMessage(null)
+            }, 5000)
+          }
         )
+        .catch(error => {
+          setClassName('notification error')
+          setNewMessage(
+            `${checkDuplicate.name} was already removed from server`
+          )
+          setTimeout(() => {
+            setNewMessage(null)
+          }, 5000)
+          setPersons(persons.filter(n => n.id !== checkDuplicate.id))
+        })
       }
       return 
     }
 
     PeopleService.createPerson(newPerson)
-      .then(response => setPersons(persons.concat(response)))
+      .then(response => {
+        setPersons(persons.concat(response))
+        setClassName('notification created')
+        setNewMessage(`${response.name} has been created`)
+        setTimeout(() => {
+          setNewMessage(null)
+        }, 5000)
+      }
+    )
     setNewName('');
     
   }
@@ -74,6 +101,8 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={message} className={className} />
+      
       <FilterPeople filterBy={filterBy} inputFilterChange={inputFilterChange} />
 
       <h1> Add new </h1>
