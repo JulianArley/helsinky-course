@@ -28,49 +28,49 @@ const App = () => {
       number: newNumber
     }
 
-    const checkDuplicate = persons.find((person) => person.name === newName)
-    if(checkDuplicate) {
-      const updateNumber = window.confirm(`${newName} already exists, repalce old number?`)
-
-      if(updateNumber) {
-        PeopleService
-        .updatePersonNumer(
-          checkDuplicate.id, 
-          {name: newName, number: newNumber}
-        )
-        .then(response => {
-            setPersons(persons.map(person => person.id !== checkDuplicate.id ? person : response))
-            setClassName('notification created')
-            setNewMessage(`Number updated for ${newName}, new value ${newNumber}`)
-            setTimeout(() => {
-              setNewMessage(null)
-            }, 5000)
-          }
-        )
-        .catch(error => {
-          setClassName('notification error')
-          setNewMessage(
-            `${checkDuplicate.name} was already removed from server`
-          )
-          setTimeout(() => {
-            setNewMessage(null)
-          }, 5000)
-          setPersons(persons.filter(n => n.id !== checkDuplicate.id))
-        })
-      }
-      return 
-    }
-
     PeopleService.createPerson(newPerson)
       .then(response => {
         setPersons(persons.concat(response))
         setClassName('notification created')
-        setNewMessage(`${response.name} has been created`)
-        setTimeout(() => {
-          setNewMessage(null)
-        }, 5000)
-      }
-    )
+              setNewMessage(`Number updated for ${newName}, new value ${newNumber}`)
+      })
+      .catch(error => {
+        if(error.response.data.message === 'Person already exists' 
+            && error.response.status === 409 ){
+          const updateNumber = window.confirm(`${newName} already exists, repalce old number?`)
+          
+          if(updateNumber) {
+            PeopleService
+            .updatePersonNumber(
+              newName, 
+              {name: newName, number: newNumber}
+            )
+            .then(response => {
+              setPersons(persons.map(person => person.id !== response.id ? person : response))
+              setClassName('notification created')
+              setNewMessage(`Number updated for ${newName}, new value ${newNumber}`)
+              setTimeout(() => {
+                setNewMessage(null)
+              }, 5000)
+              }
+            )
+            .catch(error => {
+              setClassName('notification error')
+              setNewMessage(error.response.data.error)
+              setTimeout(() => {
+                setNewMessage(null)
+              }, 5000)
+            })
+          }
+        } else {
+          setClassName('notification error')
+          setNewMessage(error.response.data.error)
+          setTimeout(() => {
+            setNewMessage(null)
+          }, 5000)
+        }
+
+      })
     setNewName('');
     
   }
@@ -91,7 +91,7 @@ const App = () => {
     const confirmation = window.confirm(`Proceed with deleting of ${person.name}`)
     if(confirmation) PeopleService.deletePerson(person.id)
       .then(response => setPersons(
-        persons.filter(person => person.id !== response.id)
+        persons.filter(pers => pers.id !== person.id)
       ))
     
   }
